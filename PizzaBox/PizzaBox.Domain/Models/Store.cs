@@ -6,10 +6,6 @@ namespace PizzaBox.Domain.Models
 {
     public class Store
     {
-        private int _sid;
-        private string _sName;
-        private string _password;
-        public int Sid { get; set; }
         public string SName { get; set; }
         public string Password { get; set; }
         public List<Order> orders;
@@ -17,11 +13,10 @@ namespace PizzaBox.Domain.Models
         {
 
         }
-        public Store(string sName, string password, int sid)
+        public Store(string sName, string password)
         {
-            _sid = sid;
-            _password = password;
-            _sName = sName;
+            Password = password;
+            SName = sName;
         }
         public void showOrders()
         {

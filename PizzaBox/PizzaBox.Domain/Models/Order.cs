@@ -7,23 +7,20 @@ namespace PizzaBox.Domain.Models
     public class Order
     {
         public List<Pizza> pizzas;
-        private decimal _cost;
-        private int _uid;
-        private int _sid;
         public decimal Cost { get; set; }
-        public int UID { get; set; }
+        public string Uname { get; set; }
 
-        public int SID { get; set; }
+        public string Sname { get; set; }
         public Order()
         {
 
         }
-        public Order(int uid, int sid)
+        public Order(string uname, string sname)
         {
-            _uid = uid;
-            _sid = sid;
+            Uname = uname;
+            Sname = sname;
             pizzas = new List<Pizza>();
-            _cost = 0;
+            Cost = 0;
         }
         public void AddPizza(Pizza p)
         {
@@ -31,9 +28,9 @@ namespace PizzaBox.Domain.Models
             {
                 pizzas.Add(p);
                 CalculateCost();
-                if (_cost > 250m)
+                if (Cost > 250m)
                 {
-                    decimal t = _cost;
+                    decimal t = Cost;
                     RemovePizza(p);
                     throw new InvalidOperationException($"Your order total cannot exceed $250 (${t})");
                 }
@@ -71,6 +68,7 @@ namespace PizzaBox.Domain.Models
         {
             StringBuilder b = new StringBuilder();
             int n = 0;
+            b.Append($"{ Uname } at {Sname}\n");
             foreach (Pizza p in pizzas)
             {
                 b.Append($"{n} {p.Size}, {p.Crust}, {p.Toppings()}\n");
@@ -85,7 +83,7 @@ namespace PizzaBox.Domain.Models
             {
                 c += p.Cost;
             }
-            _cost = c;
+            Cost = c;
         }
     }
 }

@@ -18,8 +18,8 @@ namespace PizzaBox.Storing
             return new Order
             {
                 Cost = (decimal)o.Cost,
-                SID = o.Sid,
-                UID = o.Uid,
+                Sname = o.Sname,
+                Uname = o.Uname,
                 pizzas = JsonConvert.DeserializeObject<List<Pizza>>(o.Pizzas)
             };
         }
@@ -28,8 +28,8 @@ namespace PizzaBox.Storing
             return new Orders
             {
                 Cost = o.Cost,
-                Sid = o.SID,
-                Uid = o.UID,
+                Sname = o.Sname,
+                Uname = o.Uname,
                 Pizzas = JsonConvert.SerializeObject(o.pizzas)
             };
         }
@@ -45,22 +45,24 @@ namespace PizzaBox.Storing
             {
                 UName = c.Uname,
                 Password = c.Pass,
-                Uid = c.Uid,
                 lastOrder = JsonConvert.DeserializeObject<Dictionary<int, DateTime>>(c.Lastorder),
                 orders = p
             };
         }
         public static Customer Map(User u)
         {
-            List<Order> s = u.orders.ToList();
             List<Orders> p = new List<Orders>();
-            foreach (var o in s)
+            if (u.orders != null)
             {
-                p.Add(Map(o));
+                List<Order> s = u.orders.ToList();
+                foreach (var o in s)
+                {
+                    p.Add(Map(o));
+
+                }
             }
             return new Customer
             {
-                Uid = u.Uid,
                 Pass = u.Password,
                 Uname = u.UName,
                 Orders = p,
@@ -77,7 +79,6 @@ namespace PizzaBox.Storing
             }
             return new Domain.Models.Store
             {
-                Sid = s.Sid,
                 SName = s.Sname,
                 Password = s.Spass,
                 orders = p
@@ -93,7 +94,6 @@ namespace PizzaBox.Storing
             }
             return new Storing.Repositories.Store
             {
-                Sid = s.Sid,
                 Sname = s.SName,
                 Spass=s.Password,
                 Orders = p

@@ -19,21 +19,28 @@ namespace PizzaBox.Storing.Repositories
         public virtual DbSet<Orders> Orders { get; set; }
         public virtual DbSet<Store> Store { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=PizzaBox;trusted_connection=TRUE");
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Customer>(entity =>
             {
-                entity.HasKey(e => e.Uid)
-                    .HasName("PK__customer__DD701264A672C2FD");
+                entity.HasKey(e => e.Uname)
+                    .HasName("PK__customer__C7D2484FAE2BED2F");
 
                 entity.ToTable("customer");
 
-                entity.HasIndex(e => e.Uname)
-                    .HasName("UQ__customer__C7D2484ED9C42ED8")
-                    .IsUnique();
-
-                entity.Property(e => e.Uid).HasColumnName("uid");
+                entity.Property(e => e.Uname)
+                    .HasColumnName("uname")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Lastorder)
                     .HasColumnName("lastorder")
@@ -41,14 +48,7 @@ namespace PizzaBox.Storing.Repositories
                     .IsUnicode(false);
 
                 entity.Property(e => e.Pass)
-                    .IsRequired()
                     .HasColumnName("pass")
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Uname)
-                    .IsRequired()
-                    .HasColumnName("uname")
                     .HasMaxLength(20)
                     .IsUnicode(false);
             });
@@ -56,7 +56,9 @@ namespace PizzaBox.Storing.Repositories
             modelBuilder.Entity<Orders>(entity =>
             {
                 entity.HasKey(e => e.Oid)
-                    .HasName("PK__Orders__C2FFCF1304D706B9");
+                    .HasName("PK__orders__C2FFCF13C02E3B5A");
+
+                entity.ToTable("orders");
 
                 entity.Property(e => e.Oid).HasColumnName("oid");
 
@@ -66,47 +68,43 @@ namespace PizzaBox.Storing.Repositories
 
                 entity.Property(e => e.Pizzas)
                     .HasColumnName("pizzas")
-                    .HasMaxLength(5000)
+                    .HasMaxLength(8000)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Sid).HasColumnName("sid");
+                entity.Property(e => e.Sname)
+                    .HasColumnName("sname")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
 
-                entity.Property(e => e.Uid).HasColumnName("uid");
+                entity.Property(e => e.Uname)
+                    .HasColumnName("uname")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
 
-                entity.HasOne(d => d.S)
+                entity.HasOne(d => d.SnameNavigation)
                     .WithMany(p => p.Orders)
-                    .HasForeignKey(d => d.Sid)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Orders__sid__4F7CD00D");
+                    .HasForeignKey(d => d.Sname)
+                    .HasConstraintName("FK__orders__sname__60A75C0F");
 
-                entity.HasOne(d => d.U)
+                entity.HasOne(d => d.UnameNavigation)
                     .WithMany(p => p.Orders)
-                    .HasForeignKey(d => d.Uid)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Orders__uid__5070F446");
+                    .HasForeignKey(d => d.Uname)
+                    .HasConstraintName("FK__orders__uname__619B8048");
             });
 
             modelBuilder.Entity<Store>(entity =>
             {
-                entity.HasKey(e => e.Sid)
-                    .HasName("PK__STORE__DDDFDD3646E29414");
+                entity.HasKey(e => e.Sname)
+                    .HasName("PK__store__0F1ED582CD3222F3");
 
-                entity.ToTable("STORE");
-
-                entity.HasIndex(e => e.Sname)
-                    .HasName("UQ__STORE__0F1ED583E756EC7A")
-                    .IsUnique();
-
-                entity.Property(e => e.Sid).HasColumnName("sid");
+                entity.ToTable("store");
 
                 entity.Property(e => e.Sname)
-                    .IsRequired()
                     .HasColumnName("sname")
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Spass)
-                    .IsRequired()
                     .HasColumnName("spass")
                     .HasMaxLength(20)
                     .IsUnicode(false);

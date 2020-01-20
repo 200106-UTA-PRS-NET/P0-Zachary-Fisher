@@ -154,7 +154,7 @@ namespace PizzaBox.Client
                                 int n = 1;
                                 foreach (Order order in orders)
                                 {
-                                    if(order.UID==currentUser.Uid)
+                                    if(order.Uname==currentUser.UName)
                                     {
                                         order.CalculateCost();
                                         Console.WriteLine($"Order {n}, {order.ShowOrder()},\n Price: {order.Cost}");
@@ -198,14 +198,14 @@ namespace PizzaBox.Client
         static IEnumerable<Orders> GetUserOrders(PizzaBoxContext db, User u)
         {
             var query = from o in db.Orders
-                        where o.Uid == u.Uid
+                        where o.Uname == u.UName
                         select o;
             return query;
         }
         static IEnumerable<Orders> GetStoreOrders(PizzaBoxContext db, Domain.Models.Store s)
         {
             var query = from o in db.Orders
-                        where o.Sid == s.Sid
+                        where o.Sname == s.SName
                         select o;
             return query;
         }

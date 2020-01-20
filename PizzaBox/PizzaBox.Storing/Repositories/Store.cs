@@ -10,7 +10,6 @@ namespace PizzaBox.Storing.Repositories
             Orders = new HashSet<Orders>();
         }
 
-        public int Sid { get; set; }
         public string Sname { get; set; }
         public string Spass { get; set; }
 
