@@ -86,11 +86,15 @@ namespace PizzaBox.Storing
         }
         public static PizzaBox.Storing.Repositories.Store Map(PizzaBox.Domain.Models.Store s)
         {
-            List<Order> z = s.orders.ToList();
             List<Orders> p = new List<Orders>();
-            foreach (var o in z)
+            if (s.orders != null)
             {
-                p.Add(Map(o));
+                List<Order> v = s.orders.ToList();
+                foreach (var o in v)
+                {
+                    p.Add(Map(o));
+
+                }
             }
             return new Storing.Repositories.Store
             {

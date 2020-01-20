@@ -32,15 +32,16 @@ namespace PizzaBox.Client
             List<Order> orders = new List<Order>();
             User currentUser = null;
             Domain.Models.Store currentStore = null;
+            Domain.Models.Store selectedStore = null;
             string input;
             string activity = "menu";
             Console.WriteLine("Welcome to the Pizza Client.");
             while (running)
             {
                 Console.WriteLine("Would you like to: ");
-                Console.WriteLine("u:\t Login as user");
-                Console.WriteLine("p:\t Login as store administrator");
-                Console.WriteLine("q:\t Quit the program");
+                Console.WriteLine("u:\t Login as user.");
+                Console.WriteLine("s:\t Login as store administrator.");
+                Console.WriteLine("q:\t Quit the program.");
                 input = Console.ReadLine();
                 if (input.Equals("u"))
                 {
@@ -65,11 +66,11 @@ namespace PizzaBox.Client
                                     {
                                         activity = "user";
                                     }
-                                    if( db.Customer.Any(c => c.Uname == un)&& un!="BACK")
+                                    if (db.Customer.Any(c => c.Uname == un) && un != "BACK")
                                     {
                                         Console.WriteLine("Enter your password");
                                         string pass = Console.ReadLine();
-                                        if(db.Customer.Any(c=> c.Uname ==un && c.Pass == pass))
+                                        if (db.Customer.Any(c => c.Uname == un && c.Pass == pass))
                                         {
                                             var query = from c in db.Customer
                                                         where c.Uname == un && c.Pass == pass
@@ -107,7 +108,7 @@ namespace PizzaBox.Client
                                         unique = true;
                                         Console.WriteLine("Enter a new username");
                                         un = Console.ReadLine();
-                                        if(db.Customer.Any(c => c.Uname == un))
+                                        if (db.Customer.Any(c => c.Uname == un))
                                         {
                                             unique = false;
                                             Console.WriteLine("That username is taken");
@@ -115,9 +116,10 @@ namespace PizzaBox.Client
                                     }
                                     Console.WriteLine("Enter a password");
                                     pw = Console.ReadLine();
-                                    User nuser = new User{
-                                        UName=un,
-                                        Password=pw
+                                    User nuser = new User
+                                    {
+                                        UName = un,
+                                        Password = pw
                                     };
                                     AddUser(db, nuser);
                                     activity = "user";
@@ -154,7 +156,7 @@ namespace PizzaBox.Client
                                 int n = 1;
                                 foreach (Order order in orders)
                                 {
-                                    if(order.Uname==currentUser.UName)
+                                    if (order.Uname == currentUser.UName)
                                     {
                                         order.CalculateCost();
                                         Console.WriteLine($"Order {n}, {order.ShowOrder()},\n Price: {order.Cost}");
@@ -173,17 +175,128 @@ namespace PizzaBox.Client
                         }
                     }
                 }
-                else if (input.Equals("p"))
-                {
-
-                }
-                else if (input.Equals("l"))
-                {
-
-                }
                 else if (input.Equals("s"))
                 {
-
+                    activity = "store";
+                    while (activity.Equals("store"))
+                    {
+                        if (currentStore == null)
+                        {
+                            Console.WriteLine("Would you like to: ");
+                            Console.WriteLine("l:\t Login to an existing store.");
+                            Console.WriteLine("c:\t Create a new store.");
+                            Console.WriteLine("b:\t Go back to previous menu.");
+                            input = Console.ReadLine();
+                            if (input.Equals("l"))
+                            {
+                                activity = "loginstore";
+                                while (activity.Equals("loginstore"))
+                                {
+                                    Console.WriteLine("Enter store name. Type BACK to quit.");
+                                    string sn = Console.ReadLine();
+                                    if (sn == "BACK")
+                                    {
+                                        activity = "store";
+                                    }
+                                    if (db.Store.Any(s => s.Sname == sn) && sn != "BACK")
+                                    {
+                                        Console.WriteLine("Enter store password.");
+                                        string pass = Console.ReadLine();
+                                        if (db.Store.Any(s => s.Sname == sn && s.Spass == pass))
+                                        {
+                                            var query = from s in db.Store
+                                                        where s.Sname == sn && s.Spass == pass
+                                                        select s;
+                                            try
+                                            {
+                                                Storing.Repositories.Store store = query.Single();
+                                                currentStore = Mapper.Map(store);
+                                                Console.WriteLine($"Welcome, {currentStore.SName} administrator.");
+                                                activity = "store";
+                                            }
+                                            catch
+                                            {
+                                                Console.WriteLine("Error, more than one store with that name/password exists.");
+                                                throw;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("That store does not exist.");
+                                    }
+                                }
+                            }
+                            else if (input.Equals("c"))
+                            {
+                                activity = "createstore";
+                                while (activity.Equals("createstore"))
+                                {
+                                    string sn = "ERRORIFSHOWN";
+                                    string pw;
+                                    bool unique = false;
+                                    while (!unique)
+                                    {
+                                        unique = true;
+                                        Console.WriteLine("Enter a new store name.");
+                                        sn = Console.ReadLine();
+                                        if (db.Store.Any(s => s.Sname == sn))
+                                        {
+                                            unique = false;
+                                            Console.WriteLine("That store name is taken");
+                                        }
+                                    }
+                                    Console.WriteLine("Enter a password");
+                                    pw = Console.ReadLine();
+                                    Domain.Models.Store nstore = new Domain.Models.Store
+                                    {
+                                        SName = sn,
+                                        Password = pw
+                                    };
+                                    AddStore(db, nstore);
+                                    activity = "store";
+                                    Console.WriteLine($"Store created with Username: {sn}, Password: {pw}");
+                                }
+                            }
+                            else if(input.Equals("b"))
+                            {
+                                activity = "menu";
+                            }
+                            else
+                            {
+                                Console.WriteLine("Error, invalid option. Accepted options are l, c, and b.");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Would you like to: ");
+                            Console.WriteLine("l:\t Log out of your store");
+                            Console.WriteLine("v:\t View your store's order history");
+                            Console.WriteLine("b:\t Go back to previous menu");
+                            input = Console.ReadLine();
+                            if (input.Equals("l"))
+                            {
+                                currentStore = null;
+                            }
+                            else if (input.Equals("v"))
+                            {
+                                int n = 1;
+                                foreach (Order order in orders)
+                                {
+                                    if (order.Sname == currentStore.SName)
+                                    {
+                                        order.CalculateCost();
+                                        Console.WriteLine($"Order {n}, {order.ShowOrder()},\n Price: {order.Cost}");
+                                        n++;
+                                    }
+                                }
+                            }
+                            else if (input.Equals("b"))
+                            {
+                                activity = "menu";
+                            }
+                        }
+                    }
                 }
                 else if (input.Equals("q"))
                 {
@@ -191,7 +304,7 @@ namespace PizzaBox.Client
                 }
                 else
                 {
-                    Console.WriteLine("Error, invalid option. Accepted options are u, p, l, s, and q");
+                    Console.WriteLine("Error, invalid option. Accepted options are u, s, and q.");
                 }
             }
         }
