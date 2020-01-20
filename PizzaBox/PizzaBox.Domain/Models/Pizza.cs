@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-//ON CONNECTION ADD TRUSTED CONNECTION=TRUE
+
 namespace PizzaBox.Domain.Models
 {
     public class Pizza
     {
-        private string _crust;
-        private int _size;
+        private string _crust ="thin";
+        private int _size = 6;
         private decimal _cost;
         private List<string> toppings;
-        private List<string> allowedToppings = new List<string> { "sausage", "pepperoni", "cheese", "bacon", "beef", 
+        public List<string> allowedToppings = new List<string> { "sausage", "pepperoni", "cheese", "bacon", "beef",
             "canadian bacon", "mushrooms", "onions", "green peppers", "olives", "pineapple", "jalapenos", "sauce"};
         public Pizza()
         {
@@ -52,9 +52,12 @@ namespace PizzaBox.Domain.Models
                 }
             }
         }
+        //(a.Equals("sausage") || a.Equals("pepperoni") || a.Equals("cheese") || a.Equals("bacon") || a.Equals("beef") ||
+        //a.Equals("canadian bacon") || a.Equals("mushrooms") || a.Equals("onions") || a.Equals("green peppers") ||
+        //        a.Equals("olives") || a.Equals("pineapple") || a.Equals("jalapenos") || a.Equals("sauce")
         public void AddTopping(string a)
-        {
-            if(allowedToppings.Contains(a))
+        { 
+            if (allowedToppings.Contains(a))
             {
                 if (toppings.Count < 5)
                 {
@@ -63,12 +66,12 @@ namespace PizzaBox.Domain.Models
                 }
                 else
                 {
-                    throw new InvalidOperationException("You can only have 5 toppings on a pizza.");
+                    Console.WriteLine("Too many toppings"); ;
                 }
             }
             else
             {
-                throw new ArgumentException($"The supported toppings are {allowedToppings}", a);
+                Console.WriteLine("Not a valid topping");           
             }
         }
         public void RemoveTopping(string a)
@@ -80,7 +83,7 @@ namespace PizzaBox.Domain.Models
             }
             else
             {
-                throw new ArgumentException("You can only remove a topping already on the pizza",a);
+                Console.WriteLine("You can only remove a topping that is on the pizza");
             }
         }
         public string Toppings()
@@ -116,7 +119,7 @@ namespace PizzaBox.Domain.Models
             }
             _cost = cost;
         }
-        private void Preset(string s)
+        public void Preset(string s)
         {
             if (s.Equals("hawaiian"))
             {

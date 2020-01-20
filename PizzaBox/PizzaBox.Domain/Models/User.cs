@@ -7,7 +7,7 @@ namespace PizzaBox.Domain.Models
 {
     public class User
     {
-        public Dictionary<int, DateTime> lastOrder;
+        public Dictionary<string, DateTime> lastOrder;
         public List<Order> orders;
         
         public string UName { get; set; }
@@ -16,11 +16,11 @@ namespace PizzaBox.Domain.Models
         {
 
         }
-        public User(string _uName, string _password, int uid)
+        public User(string _uName, string _password)
         {
             UName = _uName;
             Password = _password;
-            lastOrder = new Dictionary<int, DateTime>();
+            lastOrder = new Dictionary<string, DateTime>();
             orders = new List<Order>();
             //Console.WriteLine($"User {_uName} with password {_password} created successfully.");
         }

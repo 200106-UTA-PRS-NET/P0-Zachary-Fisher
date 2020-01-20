@@ -13,7 +13,8 @@ namespace PizzaBox.Domain.Models
         public string Sname { get; set; }
         public Order()
         {
-
+            pizzas = new List<Pizza>();
+            Cost = 0;
         }
         public Order(string uname, string sname)
         {
@@ -66,9 +67,10 @@ namespace PizzaBox.Domain.Models
         }
         public string ShowOrder()
         {
+            CalculateCost();
             StringBuilder b = new StringBuilder();
             int n = 0;
-            b.Append($"{ Uname } at {Sname}\n");
+            b.Append($"{ Uname } at {Sname}, Price: ${Cost}\n");
             foreach (Pizza p in pizzas)
             {
                 b.Append($"{n} {p.Size}, {p.Crust}, {p.Toppings()}\n");
@@ -85,5 +87,6 @@ namespace PizzaBox.Domain.Models
             }
             Cost = c;
         }
+        
     }
 }

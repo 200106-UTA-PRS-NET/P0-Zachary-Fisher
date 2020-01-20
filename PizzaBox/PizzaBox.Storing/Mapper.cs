@@ -45,7 +45,7 @@ namespace PizzaBox.Storing
             {
                 UName = c.Uname,
                 Password = c.Pass,
-                lastOrder = JsonConvert.DeserializeObject<Dictionary<int, DateTime>>(c.Lastorder),
+                lastOrder = JsonConvert.DeserializeObject<Dictionary<string, DateTime>>(c.Lastorder),
                 orders = p
             };
         }

@@ -28,8 +28,6 @@ namespace PizzaBox.Client
             #endregion config
 
             bool running = true;
-            List<Domain.Models.Store> stores = new List<Domain.Models.Store>();
-            List<Order> orders = new List<Order>();
             User currentUser = null;
             Domain.Models.Store currentStore = null;
             Domain.Models.Store selectedStore = null;
@@ -149,17 +147,207 @@ namespace PizzaBox.Client
                             }
                             else if (input.Equals("o"))
                             {
-                                //CREATE ORDER
+                                Console.WriteLine("Select a store to order from. Available stores are:");
+                                activity = "ss";
+                                while(activity.Equals("ss"))
+                                {
+                                    ShowStores(db);
+                                    input = Console.ReadLine();
+                                    if(input == "b")
+                                    {
+                                        activity = "user";
+                                        break;
+                                    }
+                                    var query = from s in db.Store
+                                                where s.Sname == input
+                                                select s;
+                                    try
+                                    {
+                                        Storing.Repositories.Store st = query.Single();
+                                        selectedStore = Mapper.Map(st);
+                                        Console.WriteLine($"Store Selected: {selectedStore.SName}.");
+                                        activity = "";
+                                    }
+                                    catch
+                                    {
+                                        Console.WriteLine("Error, that store cannot be found.");
+                                    }
+                                }
+                                if (activity.Equals("user"))
+                                {
+                                    break;
+                                }
+                                Console.WriteLine("Create your order.");
+                                activity = "ordering";
+                                Order o = new Order(currentUser.UName, selectedStore.SName);
+                                while (activity.Equals("ordering"))
+                                { 
+                                    Console.WriteLine("p\t Add preset pizza."); //done
+                                    Console.WriteLine("c\t Add custom pizza."); //done
+                                    Console.WriteLine("r\t Remove a pizza from the order"); //done
+                                    Console.WriteLine("b\t Cancel the order."); //done
+                                    Console.WriteLine("v\t View the order."); //done
+                                    Console.WriteLine("s\t Submit the order"); //done
+                                    input = Console.ReadLine();
+                                    if (input.Equals("p"))
+                                    {
+                                        Pizza p = new Pizza();
+                                    Preset:
+                                        try
+                                        {
+                                            Console.WriteLine("What preset do you want?");
+                                            Console.WriteLine("hawaiian, 3 meat, supreme, meat lover, cheeseburger, bacon cheeseburger.");
+                                            input = Console.ReadLine();
+                                            p.Preset(input);
+                                        }
+                                        catch
+                                        {
+                                            goto Preset;
+                                        }
+                                    PresetSize:
+                                        try
+                                        {
+                                            Console.WriteLine("What size do you want?");
+                                            Console.WriteLine("6, 8, 10, 12, or 14");
+                                            int s = Convert.ToInt32(Console.ReadLine());
+                                            p.Size = s;
+                                        }
+                                        catch
+                                        {
+                                            goto PresetSize;
+                                        }
+                                    PresetCrust:
+                                        try
+                                        {
+                                            Console.WriteLine("What crust type do you want?");
+                                            Console.WriteLine("sicilian, thin, or deep dish.");
+                                            input = Console.ReadLine();
+                                            p.Crust = input;
+                                        }
+                                        catch
+                                        {
+                                            goto PresetCrust;
+                                        }
+                                        o.AddPizza(p);
+                                    }
+                                    else if (input.Equals("c"))
+                                    {
+                                        Pizza p = new Pizza();
+                                    CustomSize:
+                                        try
+                                        {
+                                            Console.WriteLine("What size do you want?");
+                                            Console.WriteLine("6, 8, 10, 12, or 14");
+                                            int s = Convert.ToInt32(Console.ReadLine());
+                                            p.Size = s;
+                                        }
+                                        catch
+                                        {
+                                            goto CustomSize;
+                                        }
+                                    CustomCrust:
+                                        try
+                                        {
+                                            Console.WriteLine("What crust type do you want?");
+                                            Console.WriteLine("sicilian, thin, or deep dish.");
+                                            input = Console.ReadLine();
+                                            p.Crust = input;
+                                        }
+                                        catch
+                                        {
+                                            goto CustomCrust;
+                                        }
+                                        bool done = false;
+                                        while (!done)
+                                        {
+                                            Console.WriteLine("Change toppings");
+                                            Console.WriteLine("a\t Add topping");
+                                            Console.WriteLine("r\t Remove topping");
+                                            Console.WriteLine("v\t View toppings");
+                                            Console.WriteLine("d\t Done selecting toppings");
+                                            input = Console.ReadLine();
+                                            if (input.Equals("a"))
+                                            {
+                                                Console.WriteLine("Available toppings");
+                                                foreach (string t in p.allowedToppings)
+                                                {
+                                                    Console.Write($"{t}, ");
+                                                }
+
+                                                Console.WriteLine("\n");
+                                                input = Console.ReadLine();
+                                                p.AddTopping(input);
+                                            }
+                                            else if (input.Equals("r"))
+                                            {
+                                                Console.WriteLine("Toppings to remove");
+                                                Console.WriteLine(p.Toppings());
+                                                input = Console.ReadLine();
+                                                p.RemoveTopping(input);
+                                            }
+                                            else if (input.Equals("v"))
+                                            {
+                                                Console.WriteLine(p.Toppings());
+                                            }
+                                            else if (input.Equals("d"))
+                                            {
+                                                o.AddPizza(p);
+                                                done = true;
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine("Accepted inputs a, r, v, and d");
+                                            }
+                                        }
+                                    }
+                                    else if (input.Equals("r"))
+                                    {
+                                        Console.WriteLine(o.ShowOrder());
+                                        Console.WriteLine("Enter the number of the pizza to remove");
+                                        int a = Convert.ToInt32(Console.ReadLine());
+                                        o.RemovePizza(a);
+                                    }
+                                    else if(input.Equals("b"))
+                                    {
+                                        activity = "user";
+                                    }
+                                    else if(input.Equals("v"))
+                                    {
+                                        Console.WriteLine(o.ShowOrder());
+                                    }
+                                    else if (input.Equals("s"))
+                                    {
+                                        Console.WriteLine(o.ShowOrder());
+                                        Console.WriteLine("Would you like to finalize the order? (y/n)");
+                                        input = Console.ReadLine();
+                                        if (input.Equals("y"))
+                                        {
+                                            activity = "user";
+                                            AddOrder(db, o);
+                                            currentUser.lastOrder[selectedStore.SName] = DateTime.Now;
+                                        }
+                                        else
+                                        {
+                                            
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Invalid choice. available choices are p,c,b, and v");
+                                    }
+                                }
+
                             }
                             else if (input.Equals("v"))
                             {
                                 int n = 1;
-                                foreach (Order order in orders)
+                                foreach (Orders orders in db.Orders)
                                 {
+                                    Order order = Mapper.Map(orders);
                                     if (order.Uname == currentUser.UName)
                                     {
                                         order.CalculateCost();
-                                        Console.WriteLine($"Order {n}, {order.ShowOrder()},\n Price: {order.Cost}");
+                                        Console.WriteLine($"Order {n}, {order.ShowOrder()}");
                                         n++;
                                     }
                                 }
@@ -281,12 +469,13 @@ namespace PizzaBox.Client
                             else if (input.Equals("v"))
                             {
                                 int n = 1;
-                                foreach (Order order in orders)
+                                foreach (Orders orders in db.Orders)
                                 {
+                                    Order order = Mapper.Map(orders);
                                     if (order.Sname == currentStore.SName)
                                     {
                                         order.CalculateCost();
-                                        Console.WriteLine($"Order {n}, {order.ShowOrder()},\n Price: {order.Cost}");
+                                        Console.WriteLine($"Order {n}, {order.ShowOrder()}");
                                         n++;
                                     }
                                 }
@@ -356,6 +545,13 @@ namespace PizzaBox.Client
                 db.Store.Add(st);// this will generate insert query
             }
             db.SaveChanges();
+        }
+        static void ShowStores(PizzaBoxContext db)
+        {
+            foreach (var s in db.Store)
+            {
+                Console.WriteLine($"{s.Sname}");
+            }
         }
     }
 }
