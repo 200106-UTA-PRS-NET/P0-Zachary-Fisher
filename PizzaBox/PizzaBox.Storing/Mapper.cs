@@ -17,20 +17,20 @@ namespace PizzaBox.Storing
         {
             return new Order
             {
-                Cost = (decimal)o.Cost,
                 Sname = o.Sname,
                 Uname = o.Uname,
-                pizzas = JsonConvert.DeserializeObject<List<Pizza>>(o.Pizzas)
+                pizzas = JsonConvert.DeserializeObject<List<Pizza>>(o.Pizzas),
+                Cost = (decimal)o.Cost
             };
         }
         public static Orders Map(Order o)
         {
             return new Orders
             {
-                Cost = o.Cost,
                 Sname = o.Sname,
                 Uname = o.Uname,
-                Pizzas = JsonConvert.SerializeObject(o.pizzas)
+                Pizzas = JsonConvert.SerializeObject(o.pizzas),
+                Cost = o.Cost
             };
         }
         public static User Map(Customer c)

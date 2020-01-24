@@ -57,7 +57,7 @@ namespace PizzaBox.Domain.Models
         {
             if (pizzas.Count > n)
             {
-                pizzas.RemoveAt(n);
+                pizzas.RemoveAt(n+1);
                 CalculateCost();
             }
             else
@@ -69,11 +69,11 @@ namespace PizzaBox.Domain.Models
         {
             CalculateCost();
             StringBuilder b = new StringBuilder();
-            int n = 0;
+            int n = 1;
             b.Append($"{ Uname } at {Sname}, Price: ${Cost}\n");
             foreach (Pizza p in pizzas)
             {
-                b.Append($"{n} {p.Size}, {p.Crust}, {p.Toppings()}\n");
+                b.Append($"Pizza:{n} {p.Size}\", Crust: {p.Crust}, {p.Toppings()}\n");
                 n++;
             }
             return b.ToString();

@@ -8,18 +8,19 @@ namespace PizzaBox.Domain.Models
     {
         private string _crust ="thin";
         private int _size = 6;
-        private decimal _cost;
-        private List<string> toppings;
         public List<string> allowedToppings = new List<string> { "sausage", "pepperoni", "cheese", "bacon", "beef",
             "canadian bacon", "mushrooms", "onions", "green peppers", "olives", "pineapple", "jalapenos", "sauce"};
+        public List<string> toppings = new List<string>();
         public Pizza()
+        {
+            
+        }
+        public void MakeDefault()
         {
             toppings = new List<string> { "sauce", "cheese" };
         }
-        public decimal Cost
-        {
-            get => _cost;
-        }
+
+        public decimal Cost { get; set; }
         public string Crust
         {
             get => _crust;
@@ -117,7 +118,7 @@ namespace PizzaBox.Domain.Models
             {
                 cost += .25m;
             }
-            _cost = cost;
+            Cost = cost;
         }
         public void Preset(string s)
         {

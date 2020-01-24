@@ -7,7 +7,7 @@ using PizzaBox.Domain.Models;
 using PizzaBox.Storing.Repositories;
 using System.Linq;
 using PizzaBox.Storing;
-
+using Newtonsoft.Json;
 
 namespace PizzaBox.Client
 {
@@ -147,11 +147,14 @@ namespace PizzaBox.Client
                             }
                             else if (input.Equals("o"))
                             {
-                                Console.WriteLine("Select a store to order from. Available stores are:");
+                                Console.WriteLine("Select a store to order from. Press 'b' to go back. Available stores are:");
                                 activity = "ss";
                                 while(activity.Equals("ss"))
                                 {
-                                    ShowStores(db);
+                                    if (activity.Equals("ss"))
+                                    {
+                                        ShowStores(db);
+                                    }
                                     input = Console.ReadLine();
                                     if(input == "b")
                                     {
@@ -161,17 +164,44 @@ namespace PizzaBox.Client
                                     var query = from s in db.Store
                                                 where s.Sname == input
                                                 select s;
+                                    double timediff = 1000;
+                                    double td;
+                                    Storing.Repositories.Store sto = null;
                                     try
                                     {
                                         Storing.Repositories.Store st = query.Single();
+                                        sto = st;
+                                        
                                         selectedStore = Mapper.Map(st);
-                                        Console.WriteLine($"Store Selected: {selectedStore.SName}.");
                                         activity = "";
                                     }
                                     catch
                                     {
                                         Console.WriteLine("Error, that store cannot be found.");
                                     }
+                                    if (currentUser.lastOrder is null) { }
+                                    else
+                                    {
+                                        foreach (var (store, lastVisit) in currentUser.lastOrder.Select(x => (x.Key, x.Value)))
+                                        {
+                                            if (!store.Equals(sto.Sname))
+                                            {
+                                                td = (DateTime.Now - lastVisit).TotalHours;
+                                                if (td < timediff)
+                                                {
+                                                    timediff = td;
+                                                }
+                                            }
+                                        }
+                                        if (timediff < 24)
+                                        {
+                                            selectedStore = null;
+                                            activity = "user";
+                                            Console.WriteLine("You cannot order from another store within 24 hours of ordering at a certain store.");
+                                            break;
+                                        }
+                                    }
+                                    Console.WriteLine($"Store Selected: {selectedStore.SName}.");
                                 }
                                 if (activity.Equals("user"))
                                 {
@@ -233,6 +263,7 @@ namespace PizzaBox.Client
                                     else if (input.Equals("c"))
                                     {
                                         Pizza p = new Pizza();
+                                        p.MakeDefault();
                                     CustomSize:
                                         try
                                         {
@@ -324,7 +355,25 @@ namespace PizzaBox.Client
                                         {
                                             activity = "user";
                                             AddOrder(db, o);
-                                            currentUser.lastOrder[selectedStore.SName] = DateTime.Now;
+                                            if (currentUser.lastOrder is null)
+                                            {
+                                                currentUser.lastOrder = new Dictionary<string, DateTime>();
+                                                currentUser.lastOrder.Add(selectedStore.SName, DateTime.Now);
+                                            }
+                                            else
+                                            {
+                                                if (currentUser.lastOrder.ContainsKey(selectedStore.SName))
+                                                {
+                                                    currentUser.lastOrder[selectedStore.SName] = DateTime.Now;
+                                                }
+                                                else
+                                                {
+                                                    currentUser.lastOrder.Add(selectedStore.SName, DateTime.Now);
+                                                }
+                                            }
+                                            UpdateDict(db, currentUser);
+
+
                                         }
                                         else
                                         {
@@ -346,7 +395,6 @@ namespace PizzaBox.Client
                                     Order order = Mapper.Map(orders);
                                     if (order.Uname == currentUser.UName)
                                     {
-                                        order.CalculateCost();
                                         Console.WriteLine($"Order {n}, {order.ShowOrder()}");
                                         n++;
                                     }
@@ -552,6 +600,17 @@ namespace PizzaBox.Client
             {
                 Console.WriteLine($"{s.Sname}");
             }
+        }
+        static void UpdateDict(PizzaBoxContext db, User u)
+        {
+            var query = from c in db.Customer
+                        where c.Uname == u.UName
+                        select c;
+            foreach (Customer c in query)
+            {
+                c.Lastorder = JsonConvert.SerializeObject(u.lastOrder);
+            }
+            db.SaveChanges();
         }
     }
 }
